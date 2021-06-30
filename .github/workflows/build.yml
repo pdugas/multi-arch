@@ -25,3 +25,18 @@ jobs:
           name: binary
           path: eg
           retention-days: 1
+
+  image:
+    name: Container Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Get Tag Info
+        run: git fetch --prune --unshallow
+      - name: Get Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: binary
+      - name: Build Image
+        run: make image

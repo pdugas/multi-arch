@@ -1,3 +1,12 @@
+REPO := $(shell git config --get remote.origin.url)
+PROJ := $(shell basename -s .git $(REPO))
+
+VERSION := $(shell git describe --always --dirty --tag)
+
+DOCKER_USER := pauldugas
+
+CPPFLAGS += -DVERSION=\"$(VERSION)\"
+
 all: eg
 
 clean:
@@ -6,4 +15,8 @@ clean:
 test: all
 	./eg | grep "Howdy" >/dev/null && echo "PASSED" || echo "FAILED"
 
-.PHONE: all clean test
+image: TAG:=$(DOCKER_USER)/$(PROJ):$(VERSION)
+image: all
+	docker build -t $(TAG) .
+
+.PHONE: all clean test image
