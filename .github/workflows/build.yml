@@ -27,6 +27,7 @@ jobs:
           retention-days: 1
 
   image:
+    needs: build
     name: Container Image
     runs-on: ubuntu-latest
     steps:
