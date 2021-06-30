@@ -1,0 +1,27 @@
+name: Build
+on:
+  push:
+  pull_request:
+    branches:
+      - 'main'
+      - 'release/*'
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Get Tag Info
+        run: git fetch --prune --unshallow
+      - name: Build
+        run: make all
+      - name: Test
+        run: make test
+      - name: Save Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: binary
+          path: eg
+          retention-days: 1

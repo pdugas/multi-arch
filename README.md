@@ -6,6 +6,6 @@ This is a test/demo project where I'm working out how to build and package a bin
 
 * ~~Simple example binary and Maekfile.~~
 * ~~Add `DOCKER_LOGIN` and `DOCKER_TOKEN` secrets.~~
-* Unit test
+* ~~Unit test~~
 * Workflow to build, test, and publish binary artifact.
 * Extend workflow to build and publish Docker image.
