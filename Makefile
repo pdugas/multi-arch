@@ -1,7 +1,7 @@
 REPO := $(shell git config --get remote.origin.url)
 PROJ := $(shell basename -s .git $(REPO))
 
-VERSION := $(shell git describe --always --dirty --tag)
+VERSION := $(shell git describe --always --dirty --tag | sed -e 's/^v//')
 
 DOCKER_USER := pauldugas
 
