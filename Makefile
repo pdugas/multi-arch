@@ -4,6 +4,7 @@ PROJ := $(shell basename -s .git $(REPO))
 VERSION := $(shell git describe --always --dirty --tag | sed -e 's/^v//')
 
 DOCKER_USER := pauldugas
+DOCKER_TAG:=$(DOCKER_USER)/$(PROJ):$(VERSION)
 
 CPPFLAGS += -DVERSION=\"$(VERSION)\"
 
@@ -15,8 +16,10 @@ clean:
 test: all
 	./eg | grep "Howdy" >/dev/null && echo "PASSED" || echo "FAILED"
 
-image: TAG:=$(DOCKER_USER)/$(PROJ):$(VERSION)
 image: all
-	docker build -t $(TAG) .
+	docker build -t $(DOCKER_TAG) .
 
-.PHONE: all clean test image
+image-push: 
+	docker push $(DOCKER_TAG)
+
+.PHONE: all clean test image image-push
