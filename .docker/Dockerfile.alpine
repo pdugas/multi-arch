@@ -1,0 +1,14 @@
+ARG IMAGE=alpine:latest
+FROM $IMAGE
+
+RUN apk update && apk add \
+  file \
+  gcc \
+  git \
+  libgcc \
+  make \
+  musl-dev
+  
+RUN adduser -h /opt/builder -D builder
+
+WORKDIR /opt/builder

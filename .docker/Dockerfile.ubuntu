@@ -1,0 +1,16 @@
+ARG IMAGE=ubuntu:latest
+FROM $IMAGE
+
+ENV DEBIAN_FRONTEND="noninteractive"
+ENV TZ="America/New_York"
+
+RUN apt update && apt install -y \
+  file \
+  gcc \
+  git \
+  make \
+&& rm -rf /var/lib/apt/lists/*
+  
+RUN useradd -m -d /opt/builder builder
+
+WORKDIR /opt/builder

@@ -1,1 +1,3 @@
-eg
+# Created when we mount this into a container with this as our HOME
+.ash_history
+.bash_history
