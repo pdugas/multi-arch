@@ -15,29 +15,14 @@ jobs:
         uses: actions/checkout@v2
       - name: Get Tag Info
         run: git fetch --prune --unshallow
-      - name: Build
-        run: make all
-      - name: Test
-        run: make test
+      - name: Build & Test
+        run: make
       - name: Save Artifact
         uses: actions/upload-artifact@v2
         with:
           name: binary
-          path: eg
+          path: bin/
           retention-days: 1
-
-  build-arm:
-    name: Build & Test on ARM
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-      - name: Get Tag Info
-        run: git fetch --prune --unshallow
-      - name: Enable Multi-Arch Containers
-        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-      - name: Build Builder
-        run: docker build -t builder -f .docker/builder/Dockerfile .
 
   image:
     needs: build

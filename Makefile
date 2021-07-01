@@ -1,4 +1,4 @@
-REQS = git basename uname ldd file
+REQS = git basename uname ldd
 CHECK_REQS := $(foreach REQ,$(REQS), $(if $(shell which $(REQ)),ignored,$(error "No $(REQ) in PATH")))
 
 REPO := $(shell git config --get remote.origin.url)
@@ -28,16 +28,14 @@ help: ## this message
 all: $(EG) ## build for the local environment
 
 $(BINDIR)/%: %.c Makefile
-	mkdir -p $(BINDIR)
+	@mkdir -p $(BINDIR)
 	$(LINK.c) $< $(LOADLIBES) $(LDLIBS) -o $@
-	@echo info: built $@
-	@file $@
 
 clean: ## remove built content
-	$(RM) $(EG)
+	@$(RM) -r bin/*
 
 test: ## run tests
-	$(EG) | grep "Howdy" >/dev/null && echo "PASSED" || echo "FAILED"
+	@$(EG) | grep "Howdy" >/dev/null && echo "PASSED" || echo "FAILED"
 
 image: all docker-required
 	docker build -t $(DOCKER_TAG) -f .docker/Dockerfile.publish .
@@ -48,30 +46,30 @@ image-push:  docker-required
 build: build-x86-glibc build-arm-glibc build-x86-musl build-arm-musl ## build for all architecures
 
 build-x86-glibc: docker-required ## build for x86/glibc
-	$(MAKE) builder \
+	@$(MAKE) builder \
 		IMAGE=ubuntu:18.04 \
 		DOCKERFILE=.docker/Dockerfile.ubuntu
 
 build-x86-musl: docker-required ## build for x86/musl
-	$(MAKE) builder \
+	@$(MAKE) builder \
 		IMAGE=alpine:3.5 \
 		DOCKERFILE=.docker/Dockerfile.alpine
 
 build-arm-glibc: docker-required ## build for arm/glibc
-	$(MAKE) builder \
+	@$(MAKE) builder \
 		IMAGE=arm64v8/ubuntu:18.04 \
 		DOCKERFILE=.docker/Dockerfile.ubuntu
 
 build-arm-musl: docker-required ## build for arm/musl
-	$(MAKE) builder \
+	@$(MAKE) builder \
 		IMAGE=arm64v8/alpine:3.5 \
 		DOCKERFILE=.docker/Dockerfile.alpine
 
 builder: CMD:=make all test
-builder:
-	[ -n "$(IMAGE)" ] || \
+builder: binfmt
+	@[ -n "$(IMAGE)" ] || \
 		{ echo >&2 "error: IMAGE not set"; exit 1; }
-	[ -n "$(DOCKERFILE)" ] || \
+	@[ -n "$(DOCKERFILE)" ] || \
 		{ echo >&2 "error: DOCKERFILE not set"; exit 1; }
 	docker build \
 		-t builder \
@@ -84,7 +82,11 @@ builder:
 		builder $(CMD)
 
 docker-required:
-	[ -n "$(shell which docker)" ] || \
+	@[ -n "$(shell which docker)" ] || \
 		{ echo >&2 "error: docker required"; exit 1; }
+
+binfmt:
+	@[ -n "$(wildcard /proc/sys/fs/binfmt_misc/qemu-*)" ] || \
+		docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
 .PHONY: default help all clean test image image-push build* docker-required
