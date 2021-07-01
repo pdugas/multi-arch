@@ -10,7 +10,7 @@ This is a test/demo project where I'm working out how to build and package a bin
 * ~~Workflow to build, test, and publish binary artifact.~~
 * ~~Add version and tag.~~
 * ~~Extend workflow to build and publish Docker image.~~
-* Build x86 & ARM binaries
+* ~~Build x86 & ARM binaries~~
 * Build multi-arch container image
 * Add asset to releaseS
   * name it "Release ${VERSION}"

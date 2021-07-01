@@ -21,7 +21,9 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: binary
-          path: bin/
+          path: |
+              bin/
+              !bin/.gitignore
           retention-days: 1
 
   image:
