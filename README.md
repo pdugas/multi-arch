@@ -5,9 +5,14 @@ This is a test/demo project where I'm working out how to build and package a bin
 * The [`Makefile`](./Makefile) provides `make all` and `make test` targets that build and test the code in the _local_ environment. It's building a simple executable from [`eg.c`](./eg.c).
 
   ```shell
+  $ make all
+  cc  -DVERSION=\"0.0.2-9-g213a3ff\"   eg.c   -o bin/x86_64-linux-gnu/eg
+  $ make test
+  PASSED
   $ ./bin/x86_64-linux-gnu/eg 
   eg 0.0.2
   Howdy!
+  $ make clean
   ```
 
   There's logic in there to get version info from `git` and pass it into the compile and link command. Pretty simple.
