@@ -10,7 +10,8 @@ CPPFLAGS += -DVERSION=\"$(VERSION)\"
 DOCKER_USER := pauldugas
 DOCKER_TAG:=$(DOCKER_USER)/$(PROJ):$(VERSION)
 
-BINDIR=bin/$(MAKE_HOST)
+ARCH=$(shell echo $(MAKE_HOST) | awk -F - '{printf "%s-linux-%s", $$1, $$NF}')
+BINDIR=bin/$(ARCH)
 
 EG=$(BINDIR)/eg
 
