@@ -65,7 +65,6 @@ build-arm-musl: docker-required ## build for arm/musl
 		IMAGE=arm64v8/alpine:3.5 \
 		DOCKERFILE=.docker/Dockerfile.alpine
 
-builder: CMD:=make all test
 builder: binfmt
 	@[ -n "$(IMAGE)" ] || \
 		{ echo >&2 "error: IMAGE not set"; exit 1; }
@@ -76,10 +75,10 @@ builder: binfmt
 		--build-arg IMAGE=$(IMAGE) \
 		-f $(DOCKERFILE) \
 		.
-	docker run --rm -it \
+	docker run --rm \
 		-v $(shell pwd):/opt/builder \
 		-u $(shell id -u):$(shell id -g) \
-		builder $(CMD)
+		builder make all test
 
 docker-required:
 	@[ -n "$(shell which docker)" ] || \
