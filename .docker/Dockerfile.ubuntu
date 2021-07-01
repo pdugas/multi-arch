@@ -1,5 +1,5 @@
-ARG IMAGE=ubuntu:latest
-FROM $IMAGE
+ARG ARCH=
+FROM ${ARCH}ubuntu:18.04
 
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV TZ="America/New_York"

@@ -16,14 +16,14 @@ This is a test/demo project where I'm working out how to build and package a bin
   ```
 
   There's logic in there to get version info from `git` and pass it into the compile and link command. Pretty simple.
-* The `make build` target effectively runs four builds; x86_64 and ARM using glibc and musl libc.
+* The `make build` target effectively runs four builds; x86 and ARM using glibc and musl libc.
 
   ```shell
   make buid-(x86|arm)-(gnu|musl)
   ```
 
   Those 4 targets run the `make builder` target with the `IMAGE` and `DOCKERFILE` variables set.
-* The `make builder` target depends on the the `make qemu-binfmt` target that is doing some magic. It's using the [`multiarch/qemu-usr-static`](https://github.com/multiarch/qemu-user-static) image to install entries in `/proc/sys/fs/binfmt_misc/` that allows the kernel to invoke the [QEMU](https://www.qemu.org/) emulator when a non-native binary is executed. Once that's done, we can run ARM executables locally (and in containers) even though we're running on x86_64.
+* The `make builder` target depends on the the `make qemu-binfmt` target that is doing some magic. It's using the [`multiarch/qemu-usr-static`](https://github.com/multiarch/qemu-user-static) image to install entries in `/proc/sys/fs/binfmt_misc/` that allows the kernel to invoke the [QEMU](https://www.qemu.org/) emulator when a non-native binary is executed. Once that's done, we can run ARM executables locally (and in containers) even though we're running on x86.
 * With QEMU in place, the `make builder` target can build an image with the necessary tools installed then run `make all test` in a container using it. We mount the working directory into the container so the resulting binaries are left when the container exits.
 
 ### To Do
@@ -36,8 +36,9 @@ This is a test/demo project where I'm working out how to build and package a bin
 * ~~Extend workflow to build and publish Docker image.~~
 * ~~Build x86 & ARM binaries~~
 * Build multi-arch container image
-* Add asset to releaseS
+* Create release automatically from `v*` tags
   * name it "Release ${VERSION}"
   * Put links to assets and the container name in the description
-* Create release automatically from `v*` tags
+* Attach `eg-$(ARCH)` binaries to the release as assets.
 * Split out the build into separate jobs instead of serially in one.
+* Add a `install-eg.sh` script that can be run via `curl -Ls https://.../install-eg.sh | sh` to install the correct version of the program into `/usr/local/bin`.

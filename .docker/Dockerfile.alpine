@@ -1,5 +1,5 @@
-ARG IMAGE=alpine:latest
-FROM $IMAGE
+ARG ARCH=
+FROM ${ARCH}alpine:3.5
 
 RUN apk update && apk add \
   file \

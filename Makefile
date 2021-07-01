@@ -38,42 +38,36 @@ clean: ## remove built content
 test: ## run tests
 	@$(EG) | grep "Howdy" >/dev/null && echo "PASSED" || echo "FAILED"
 
-image: all docker-required
-	docker build -t $(DOCKER_TAG) -f .docker/Dockerfile.publish .
-
-image-push:  docker-required
-	docker push $(DOCKER_TAG)
-
 build: build-x86-gnu build-arm-gnu build-x86-musl build-arm-musl ## build for all architecures
 
 build-x86-gnu: docker-required ## build for x86/gnu
 	@$(MAKE) builder \
-		IMAGE=ubuntu:18.04 \
+		ARCH=amd64/ \
 		DOCKERFILE=.docker/Dockerfile.ubuntu
 
 build-x86-musl: docker-required ## build for x86/musl
 	@$(MAKE) builder \
-		IMAGE=alpine:3.5 \
+		ARCH=amd64/ \
 		DOCKERFILE=.docker/Dockerfile.alpine
 
 build-arm-gnu: docker-required ## build for arm/gnu
 	@$(MAKE) builder \
-		IMAGE=arm64v8/ubuntu:18.04 \
+		ARCH=arm64v8/ \
 		DOCKERFILE=.docker/Dockerfile.ubuntu
 
 build-arm-musl: docker-required ## build for arm/musl
 	@$(MAKE) builder \
-		IMAGE=arm64v8/alpine:3.5 \
+		ARCH=arm64v8/ \
 		DOCKERFILE=.docker/Dockerfile.alpine
 
-builder: binfmt
-	@[ -n "$(IMAGE)" ] || \
-		{ echo >&2 "error: IMAGE not set"; exit 1; }
+builder: qemu-binfmt
+	@[ -n "$(ARCH)" ] || \
+		{ echo >&2 "error: ARCH not set"; exit 1; }
 	@[ -n "$(DOCKERFILE)" ] || \
 		{ echo >&2 "error: DOCKERFILE not set"; exit 1; }
 	docker build \
 		-t builder \
-		--build-arg IMAGE=$(IMAGE) \
+		--build-arg ARCH=$(ARCH) \
 		-f $(DOCKERFILE) \
 		.
 	docker run --rm \
@@ -81,11 +75,20 @@ builder: binfmt
 		-u $(shell id -u):$(shell id -g) \
 		builder make all test
 
+image: all docker-required
+	docker buildx build \
+		--platform linux/arm64/v8,linux/amd64 \
+		-t $(DOCKER_TAG) \
+		-f .docker/Dockerfile.publish .
+
+image-push:  docker-required
+	docker push $(DOCKER_TAG)
+
 docker-required:
 	@[ -n "$(shell which docker)" ] || \
 		{ echo >&2 "error: docker required"; exit 1; }
 
-binfmt:
+qemu-binfmt:
 	@[ -n "$(wildcard /proc/sys/fs/binfmt_misc/qemu-*)" ] || \
 		docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
