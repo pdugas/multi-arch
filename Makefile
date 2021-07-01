@@ -44,9 +44,9 @@ image: all docker-required
 image-push:  docker-required
 	docker push $(DOCKER_TAG)
 
-build: build-x86-glibc build-arm-glibc build-x86-musl build-arm-musl ## build for all architecures
+build: build-x86-gnu build-arm-gnu build-x86-musl build-arm-musl ## build for all architecures
 
-build-x86-glibc: docker-required ## build for x86/glibc
+build-x86-gnu: docker-required ## build for x86/gnu
 	@$(MAKE) builder \
 		IMAGE=ubuntu:18.04 \
 		DOCKERFILE=.docker/Dockerfile.ubuntu
@@ -56,7 +56,7 @@ build-x86-musl: docker-required ## build for x86/musl
 		IMAGE=alpine:3.5 \
 		DOCKERFILE=.docker/Dockerfile.alpine
 
-build-arm-glibc: docker-required ## build for arm/glibc
+build-arm-gnu: docker-required ## build for arm/gnu
 	@$(MAKE) builder \
 		IMAGE=arm64v8/ubuntu:18.04 \
 		DOCKERFILE=.docker/Dockerfile.ubuntu
