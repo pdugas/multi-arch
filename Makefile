@@ -74,7 +74,7 @@ builder: qemu-binfmt
 	-docker pull $(IMAGE)
 	docker build \
 		--tag $(IMAGE) \
-		--cache-from $(TAG) \
+		--cache-from $(IMAGE) \
 		--label "org.opencontainers.image.description=Builder for $(dir $(ARCH)) and $(notdir $(DOCKERFILE))" \
 		--build-arg ARCH=$(ARCH) \
 		--file $(DOCKERFILE) \
