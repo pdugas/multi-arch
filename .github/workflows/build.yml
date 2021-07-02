@@ -62,7 +62,7 @@ jobs:
             --file .docker/Dockerfile.publish \
             .
           docker buildx build \
-            --tag ${TAG}/${VERSION}-alpine \
+            --tag ${TAG}:${VERSION}-alpine \
             --platform linux/amd64,linux/arm64 \
             --build-arg IMAGE=alpine:latest \
             --build-arg LIBC=musl \
@@ -74,6 +74,6 @@ jobs:
           fi
           if [ -n "${LATEST}" ]; then
             docker tag ${TAG}:${VERSION}-ubuntu ${TAG}:latest
-            docker push ${TAG}/ubuntu:latest
+            docker push ${TAG}:latest
           fi
 
