@@ -6,10 +6,6 @@ on:
       - 'main'
       - 'release/*'
 
-env:
-  REGISTRY: ghcr.io
-  TAG: ${{env.REGISTRY}}/${{github.repository}}
-
 jobs:
   build:
     name: Build & Test
@@ -37,7 +33,7 @@ jobs:
       - name: Build Image
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
-          REG=${{env.REGISTRY}}
+          REG=ghcr.io
           REPO=${{github.repository}}
           echo docker buildx build \
             --tag ${REG}/${REPO}:${VERSION} \
