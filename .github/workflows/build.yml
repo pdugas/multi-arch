@@ -61,5 +61,5 @@ jobs:
           if [ -n "${LATEST}" ]; then
             docker tag ${TAG}:${VERSION} ${TAG}:latest
             docker push ${TAG}:latest
-          }
+          fi
 
