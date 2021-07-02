@@ -34,8 +34,8 @@ jobs:
 
       - name: Build Container Image
         run: |
-            #DEFAULT=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
-            DEFAULT=main
+          #DEFAULT=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+          DEFAULT=main
           if egrep -i "^refs/tags/v[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}-rc[0-9]{1,}$" <<<$GITHUB_REF >/dev/null; then
             VERSION=${GITHUB_REF##*/v}
           else if egrep -i "^refs/tags/v[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}$" <<<$GITHUB_REF >/dev/null; then
