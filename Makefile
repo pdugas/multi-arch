@@ -41,25 +41,25 @@ test: ## run tests
 
 build: build-x86-gnu build-arm-gnu build-x86-musl build-arm-musl ## build for all architecures
 
-build-x86-gnu: docker-required ## build for x86/gnu
+build-x86-gnu: docker-required ## build for amd64/gnu
 	@$(MAKE) builder \
 		ARCH=amd64/ \
 		IMAGE=ghcr.io/pdugas/multi-arch/builder:amd-gnu \
 		DOCKERFILE=.docker/Dockerfile.ubuntu
 
-build-x86-musl: docker-required ## build for x86/musl
+build-x86-musl: docker-required ## build for amd64/musl
 	@$(MAKE) builder \
 		ARCH=amd64/ \
 		IMAGE=ghcr.io/pdugas/multi-arch/builder:amd-musl \
 		DOCKERFILE=.docker/Dockerfile.alpine
 
-build-arm-gnu: docker-required ## build for arm/gnu
+build-arm-gnu: docker-required ## build for arm64/gnu
 	@$(MAKE) builder \
 		ARCH=arm64v8/ \
 		IMAGE=ghcr.io/pdugas/multi-arch/builder:arm-gnu \
 		DOCKERFILE=.docker/Dockerfile.ubuntu
 
-build-arm-musl: docker-required ## build for arm/musl
+build-arm-musl: docker-required ## build for arm64/musl
 	@$(MAKE) builder \
 		ARCH=arm64v8/ \
 		IMAGE=ghcr.io/pdugas/multi-arch/builder:arm-musl \
@@ -88,15 +88,6 @@ builder: qemu-binfmt
 		docker push $(IMAGE); \
 	fi
 
-image: all docker-required
-	docker buildx build \
-		--platform linux/arm64/v8,linux/amd64 \
-		-t $(DOCKER_TAG) \
-		-f .docker/Dockerfile.publish .
-
-image-push:  docker-required
-	docker push $(DOCKER_TAG)
-
 docker-required:
 	@[ -n "$(shell which docker)" ] || \
 		{ echo >&2 "error: docker required"; exit 1; }
@@ -105,4 +96,4 @@ qemu-binfmt:
 	@[ -n "$(wildcard /proc/sys/fs/binfmt_misc/qemu-*)" ] || \
 		docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
-.PHONY: default help all clean test image image-push build* docker-required
+.PHONY: default help all clean test build* docker-required
