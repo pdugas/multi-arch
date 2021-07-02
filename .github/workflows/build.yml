@@ -35,9 +35,9 @@ jobs:
       - name: Build Image
         #if: startsWith(github.ref, 'refs/tags/v')
         run: |
-          REPO=${{github.repository}}
+          VERSION=${GITHUB_REF##*/}
           echo docker buildx build \
-            --tag ${{env.REGISTRY}}/${REPO}:${VERSION} \
+            --tag ${{env.REGISTRY}}/${{github.repository}}:${VERSION} \
             --platform linux/amd64,linux/arm64 \
             --file .docker/Dockerfile.publish \
             .
