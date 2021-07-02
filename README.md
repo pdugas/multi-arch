@@ -28,17 +28,18 @@ This is a test/demo project where I'm working out how to build and package a bin
 
 ### Container Images
 
-We're _caching_ our builder images in the GitHub Container Registry. There are 4 of them currently for amd/arm and gnu/musl libc.
+We provide multi-architecture images for GNU and musl libc environments.
 
-* `ghcr.io/pdugas/multi-arch/builder:arm-musl`
-* `ghcr.io/pdugas/multi-arch/builder:amd-musl`
-* `ghcr.io/pdugas/multi-arch/builder:arm-gnu`
-* `ghcr.io/pdugas/multi-arch/builder:amd-gnu`
+* `ghcr.io/pdugas/multi-arch:latest` - Most recent non-RC release of the Ubuntu version
+* `ghcr.io/pdugas/multi-arch:${VERSION}-ubuntu` - Ubuntu version for GNU libc
+* `ghcr.io/pdugas/multi-arch:${VERSION}-alpine` - Alpine version for musl libc
 
-We'll soon have the multi-architecture images below:
+We're _caching_ our builder images to speed up builds. There are 4 of them currently for amd/arm and gnu/musl libc. These are for the build only - not useful by others.
 
-* `ghcr.io/pdugas/multi-arch:gnu` - Ubuntu with GNU libc for both x86\_86 and AMD64
-* `ghcr.io/pdugas/multi-arch:musl` - Alpine with GNU libc for both x86\_86 and AMD64
+* `ghcr.io/pdugas/multi-arch/builder-arm64-musl:latest`
+* `ghcr.io/pdugas/multi-arch/builder-amd64-musl:latest`
+* `ghcr.io/pdugas/multi-arch/builder-arm64-gnu:latest`
+* `ghcr.io/pdugas/multi-arch/builder-amd64-gnu:latest`
 
 ### To Do
 
@@ -50,7 +51,7 @@ We'll soon have the multi-architecture images below:
 * ~~Extend workflow to build and publish Docker image.~~
 * ~~Build x86 & ARM binaries~~
 * ~~Speed up the builds by caching the builder images here at GitHub.~~
-* Build multi-arch container image
+* ~~Build multi-arch container image~~
 * Create release automatically from `v*` tags
   * name it "Release ${VERSION}"
   * Put links to assets and the container name in the description

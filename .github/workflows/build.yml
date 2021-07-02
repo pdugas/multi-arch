@@ -47,7 +47,7 @@ jobs:
           if egrep -i "^refs/tags/v[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}-rc[0-9]{1,}$" <<<$GITHUB_REF >/dev/null; then
             VERSION=${GITHUB_REF##*/v}
           elif egrep -i "^refs/tags/v[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}$" <<<$GITHUB_REF >/dev/null; then
-            TAG=${GITHUB_REF##*/v}
+            VERSION=${GITHUB_REF##*/v}
             LATEST=1
           elif egrep -i "^refs/heads/${DEFAULT}$" <<<$GITHUB_REF >/dev/null; then
             VERSION=next
