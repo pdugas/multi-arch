@@ -62,6 +62,9 @@ jobs:
             --build-arg LIBC=gnu \
             --file .docker/Dockerfile.publish \
             .
+          if [ -n "${LATEST}" ]; then
+            docker tag ${TAG}:${VERSION}-ubuntu ${TAG}:latest
+          fi
           docker buildx build \
             --tag ${TAG}:${VERSION}-alpine \
             --platform linux/amd64,linux/arm64 \
@@ -70,11 +73,6 @@ jobs:
             --file .docker/Dockerfile.publish \
             .
           if [ "${VERSION}" != "unreleased" ]; then 
-            docker push ${TAG}:${VERSION}-ubuntu
-            docker push ${TAG}:${VERSION}-alpine
-          fi
-          if [ -n "${LATEST}" ]; then
-            docker tag ${TAG}:${VERSION}-ubuntu ${TAG}:latest
-            docker push ${TAG}:latest
+            docker push --all-tags ${TAG}
           fi
 
