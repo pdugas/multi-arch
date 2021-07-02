@@ -41,6 +41,7 @@ jobs:
 
       - name: Build Container Image
         run: |
+          set -x
           DEFAULT=main
           if egrep -i "^refs/tags/v[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}-rc[0-9]{1,}$" <<<$GITHUB_REF >/dev/null; then
             VERSION=${GITHUB_REF##*/v}
