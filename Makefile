@@ -73,9 +73,11 @@ builder: qemu-binfmt
 		{ echo >&2 "error: DOCKERFILE not set"; exit 1; }
 	-docker pull $(IMAGE)
 	docker build \
-		-t $(IMAGE) \
+		--tag $(IMAGE) \
+		--cache-from $(TAG) \
+		--label "org.opencontainers.image.description=Builder for $(dir $(ARCH)) and $(notdir $(DOCKERFILE))" \
 		--build-arg ARCH=$(ARCH) \
-		-f $(DOCKERFILE) \
+		--file $(DOCKERFILE) \
 		.
 	docker run --rm \
 		-v $(shell pwd):/opt/builder \
