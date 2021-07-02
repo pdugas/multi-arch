@@ -55,15 +55,27 @@ jobs:
           VERSION=${VERSION,,} # to lowercase
           TAG=${{env.REGISTRY}}/${{github.repository}}
           docker buildx build \
-            --tag ${TAG}:${VERSION} \
+            --tag ${TAG}/ubuntu:${VERSION} \
             --platform linux/amd64,linux/arm64 \
+            --build-arg IMAGE=ubuntu:latest \
+            --build-arg LIBC=gnu \
+            --file .docker/Dockerfile.publish \
+            .
+          docker buildx build \
+            --tag ${TAG}/alpine:${VERSION} \
+            --platform linux/amd64,linux/arm64 \
+            --build-arg IMAGE=alpine:latest \
+            --build-arg LIBC=musl \
             --file .docker/Dockerfile.publish \
             .
           if [ "${VERSION}" != "unreleased" ]; then 
-            docker push ${TAG}:${VERSION}
+            docker push ${TAG}/ubuntu:${VERSION}
+            docker push ${TAG}/alpine:${VERSION}
           fi
           if [ -n "${LATEST}" ]; then
-            docker tag ${TAG}:${VERSION} ${TAG}:latest
-            docker push ${TAG}:latest
+            docker tag ${TAG}/ubuntu:${VERSION} ${TAG}/ubuntu:latest
+            docker tag ${TAG}/alpine:${VERSION} ${TAG}/alpine:latest
+            docker push ${TAG}/ubuntu:latest
+            docker push ${TAG}/alpine:latest
           fi
 
