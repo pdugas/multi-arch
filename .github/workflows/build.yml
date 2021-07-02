@@ -43,6 +43,7 @@ jobs:
         run: |
           set -x
           DEFAULT=main
+          PUSH_OPT=--push
           if egrep -i "^refs/tags/v[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}-rc[0-9]{1,}$" <<<$GITHUB_REF >/dev/null; then
             VERSION=${GITHUB_REF##*/v}
           elif egrep -i "^refs/tags/v[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}$" <<<$GITHUB_REF >/dev/null; then
@@ -51,28 +52,28 @@ jobs:
           elif egrep -i "^refs/heads/${DEFAULT}$" <<<$GITHUB_REF >/dev/null; then
             VERSION=next
           else
-            VERSION=
+            VERSION=unreleased
+            PUSH_OPT=
           fi
           VERSION=${VERSION,,} # lowercase
           TAG=${{env.REGISTRY}}/${{github.repository}}
+          [ -z "${LATEST}" ] || TAG_OPT="--tag ${TAG}:latest"
           docker buildx build \
             --tag ${TAG}:${VERSION}-ubuntu \
+            ${PUSH_OPT} ${TAG_OPT} \
             --platform linux/amd64,linux/arm64 \
             --output type=image \
             --build-arg IMAGE=ubuntu:latest \
             --build-arg LIBC=gnu \
             --file .docker/Dockerfile.publish \
             .
-          [ -z "${LATEST}" ] || \
-            docker tag ${TAG}:${VERSION}-ubuntu ${TAG}:latest
           docker buildx build \
             --tag ${TAG}:${VERSION}-alpine \
+            ${PUSH_OPT} ${TAG_OPT} \
             --platform linux/amd64,linux/arm64 \
             --output type=image \
             --build-arg IMAGE=alpine:latest \
             --build-arg LIBC=musl \
             --file .docker/Dockerfile.publish \
             .
-          docker images
-          [ -z "${VERSION}" ] || docker push --all-tags ${TAG}
 
