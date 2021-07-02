@@ -10,15 +10,11 @@ CPPFLAGS += -DVERSION=\"$(VERSION)\"
 DOCKER_USER := pauldugas
 DOCKER_TAG:=$(DOCKER_USER)/$(PROJ):$(VERSION)
 
-ARCH=$(shell echo $(MAKE_HOST) | awk -F - '{printf "%s-linux-%s", $$1, $$NF}')
-BINDIR=bin/$(ARCH)
+ARCH=$(shell uname -m | grep x86 >/dev/null && echo "amd64" || echo "arm64")
+LIBC=$(shell ldd --version | grep musl >/dev/null && echo "musl" || echo "gnu")
+BINDIR=bin/$(ARCH)-linux-$(LIBC)
 
 EG=$(BINDIR)/eg
-
-eg:
-	echo $(MAKE_HOST)
-	uname -m
-
 
 default: build
 
