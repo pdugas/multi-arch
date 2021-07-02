@@ -33,7 +33,7 @@ jobs:
 #          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Image
-        if: startsWith(github.ref, 'refs/tags/v')
+        #if: startsWith(github.ref, 'refs/tags/v')
         run: |
           REPO=${{github.repository}}
           echo docker buildx build \
