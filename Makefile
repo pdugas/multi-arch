@@ -15,6 +15,11 @@ BINDIR=bin/$(ARCH)
 
 EG=$(BINDIR)/eg
 
+eg:
+	echo $(MAKE_HOST)
+	uname -m
+
+
 default: build
 
 help: ## this message
