@@ -51,28 +51,28 @@ jobs:
           elif egrep -i "^refs/heads/${DEFAULT}$" <<<$GITHUB_REF >/dev/null; then
             VERSION=next
           else
-            VERSION=unreleased
+            VERSION=
           fi
-          VERSION=${VERSION,,} # to lowercase
+          VERSION=${VERSION,,} # lowercase
           TAG=${{env.REGISTRY}}/${{github.repository}}
           docker buildx build \
             --tag ${TAG}:${VERSION}-ubuntu \
             --platform linux/amd64,linux/arm64 \
+            --output type=image \
             --build-arg IMAGE=ubuntu:latest \
             --build-arg LIBC=gnu \
             --file .docker/Dockerfile.publish \
             .
-          if [ -n "${LATEST}" ]; then
+          [ -z "${LATEST}" ] || \
             docker tag ${TAG}:${VERSION}-ubuntu ${TAG}:latest
-          fi
           docker buildx build \
             --tag ${TAG}:${VERSION}-alpine \
             --platform linux/amd64,linux/arm64 \
+            --output type=image \
             --build-arg IMAGE=alpine:latest \
             --build-arg LIBC=musl \
             --file .docker/Dockerfile.publish \
             .
-          if [ "${VERSION}" != "unreleased" ]; then 
-            docker push --all-tags ${TAG}
-          fi
+          docker images
+          [ -z "${VERSION}" ] || docker push --all-tags ${TAG}
 
