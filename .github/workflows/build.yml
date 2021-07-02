@@ -40,10 +40,10 @@ jobs:
           DEFAULT=main
           if egrep -i "^refs/tags/v[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}-rc[0-9]{1,}$" <<<$GITHUB_REF >/dev/null; then
             VERSION=${GITHUB_REF##*/v}
-          else if egrep -i "^refs/tags/v[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}$" <<<$GITHUB_REF >/dev/null; then
+          elif egrep -i "^refs/tags/v[0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}$" <<<$GITHUB_REF >/dev/null; then
             TAG=${GITHUB_REF##*/v}
             LATEST=1
-          else if egrep -i "^refs/heads/${DEFAULT})$" <<<$GITHUB_REF >/dev/null; then
+          elif egrep -i "^refs/heads/${DEFAULT}$" <<<$GITHUB_REF >/dev/null; then
             VERSION=next
           else
             VERSION=unreleased
