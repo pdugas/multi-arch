@@ -43,25 +43,25 @@ build: build-x86-gnu build-arm-gnu build-x86-musl build-arm-musl ## build for al
 build-x86-gnu: docker-required ## build for x86/gnu
 	@$(MAKE) builder \
 		ARCH=amd64/ \
-		IMAGE=ghcr.io/pauldugas/multi-arch/builder:amd-gnu \
+		IMAGE=ghcr.io/pdugas/multi-arch/builder:amd-gnu \
 		DOCKERFILE=.docker/Dockerfile.ubuntu
 
 build-x86-musl: docker-required ## build for x86/musl
 	@$(MAKE) builder \
 		ARCH=amd64/ \
-		IMAGE=ghcr.io/pauldugas/multi-arch/builder:amd-musl \
+		IMAGE=ghcr.io/pdugas/multi-arch/builder:amd-musl \
 		DOCKERFILE=.docker/Dockerfile.alpine
 
 build-arm-gnu: docker-required ## build for arm/gnu
 	@$(MAKE) builder \
 		ARCH=arm64v8/ \
-		IMAGE=ghcr.io/pauldugas/multi-arch/builder:arm-gnu \
+		IMAGE=ghcr.io/pdugas/multi-arch/builder:arm-gnu \
 		DOCKERFILE=.docker/Dockerfile.ubuntu
 
 build-arm-musl: docker-required ## build for arm/musl
 	@$(MAKE) builder \
 		ARCH=arm64v8/ \
-		IMAGE=ghcr.io/pauldugas/multi-arch/builder:arm-musl \
+		IMAGE=ghcr.io/pdugas/multi-arch/builder:arm-musl \
 		DOCKERFILE=.docker/Dockerfile.alpine
 
 builder: qemu-binfmt
