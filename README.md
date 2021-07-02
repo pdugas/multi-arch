@@ -42,3 +42,4 @@ This is a test/demo project where I'm working out how to build and package a bin
 * Attach `eg-$(ARCH)` binaries to the release as assets.
 * Split out the build into separate jobs instead of serially in one.
 * Add a `install-eg.sh` script that can be run via `curl -Ls https://.../install-eg.sh | sh` to install the correct version of the program into `/usr/local/bin`.
+* Speed up the builds by caching the builder images here at GitHub.
