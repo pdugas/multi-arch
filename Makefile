@@ -4,7 +4,7 @@ CHECK_REQS := $(foreach REQ,$(REQS), $(if $(shell which $(REQ)),ignored,$(error 
 REPO := $(shell git config --get remote.origin.url)
 PROJ := $(shell basename $(REPO) .git)
 
-VERSION := $(shell git describe --always --dirty --tag | sed -e 's/^v//')
+VERSION ?= $(shell git describe --always --dirty --tag | sed -e 's/^v//')
 CPPFLAGS += -DVERSION=\"$(VERSION)\"
 
 DOCKER_USER := pauldugas
