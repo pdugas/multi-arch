@@ -65,7 +65,6 @@ build-os-arch: require-docker
 		make all test
 
 builder-os: IMAGE:=$(REGISTRY)/$(GITHUB_REPOSITORY)-builder:$(OS)
-builder-os: CACHE:=$(REGISTRY)/$(GITHUB_REPOSITORY)-builder:$(OS)-cache
 builder-os: require-buildx-builder .docker/Dockerfile.$(OS)
 	docker buildx build \
 		--builder $(BUILDER) \
