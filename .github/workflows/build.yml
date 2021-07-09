@@ -57,7 +57,7 @@ jobs:
           TAG=${{env.REGISTRY}}/${{github.repository}}-builder
 
           echo "::group::Building ${TAG}:ubuntu Image"
-          docker pull ${TAG}:ubuntu || true
+          docker pull ${TAG}:ubuntu >/dev/null 2>&1 || true
           docker buildx build \
             --push \
             --tag ${TAG}:ubuntu \
@@ -69,7 +69,7 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::Building ${TAG}:alpine Image"
-          docker pull ${TAG}:alpine || true
+          docker pull ${TAG}:alpine >/dev/null 2>&1 || true
           docker buildx build \
             --push \
             --tag ${TAG}:alpine \

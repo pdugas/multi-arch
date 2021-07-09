@@ -1,5 +1,5 @@
 ARG ARCH=
-FROM ${ARCH}alpine:3.5
+FROM ${ARCH}alpine:3.6
 
 RUN apk update && apk add \
   file \
