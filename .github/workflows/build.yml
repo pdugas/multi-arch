@@ -15,7 +15,7 @@ defaults:
 
 jobs:
   builders:
-    name: Update Builders
+    name: Update Builder
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -65,10 +65,10 @@ jobs:
     outputs:
         tag: ${{ steps.tag.outputs.tag }}
         latest: ${{ steps.tag.outputs.latest }}
-        push: ${{ steps.tag.outputs.tag }}
+        push: ${{ steps.tag.outputs.push }}
 
   build:
-    name: Build Binaries
+    name: Build & Test
     needs: builders
     runs-on: ubuntu-latest
     strategy:
@@ -92,13 +92,13 @@ jobs:
       - name: Upload Binaries
         uses: actions/upload-artifact@v2
         with:
-          name: binaries
+          name: binaries ${{ matrix.os }} ${{ matrix.arch }}
           path: |
               bin/
               !bin/.gitignore
 
   image:
-    name: Build Images
+    name: Build Image
     needs: [builders,build]
     runs-on: ubuntu-latest
     strategy:
@@ -122,10 +122,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Download Binaries
+      - name: Download amd64 Binaries
         uses: actions/download-artifact@v2
         with:
-          name: binaries
+          name: binaries ${{ matrix.os }} amd64
+
+      - name: Download arm64 Binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: binaries ${{ matrix.os }} arm64
 
       - name: Build Container Image
         run: make image-os OS=${{ matrix.os }} VERSION=${{ needs.builders.outputs.tag }} LATEST=${{ needs.builders.outputs.latest }} PUSH=${{ needs.builders.outputs.push }}
