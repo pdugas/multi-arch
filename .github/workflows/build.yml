@@ -64,7 +64,7 @@ jobs:
           fi
           TAG=${{env.REGISTRY}}/${{github.repository}}
           [ -z "${{ steps.tag.outputs.latest }}" ] || TAG_OPT="--tag ${TAG}:latest"
-          set -x
+          echo "::group::Build ${TAG}:${{ steps.version.outputs.version-without-v }}-ubuntu"
           docker buildx build \
             --tag ${TAG}:${{ steps.version.outputs.version-without-v }}-ubuntu \
             ${PUSH_OPT} ${TAG_OPT} \
@@ -74,6 +74,8 @@ jobs:
             --build-arg LIBC=gnu \
             --file .docker/Dockerfile.publish \
             .
+          echo "::endgroup::"
+          echo "::group::Build ${TAG}:${{ steps.version.outputs.version-without-v }}-alpine"
           docker buildx build \
             --tag ${TAG}:${{ steps.version.outputs.version-without-v }}-alpine \
             ${PUSH_OPT} ${TAG_OPT} \
@@ -83,4 +85,5 @@ jobs:
             --build-arg LIBC=musl \
             --file .docker/Dockerfile.publish \
             .
+          echo "::endgroup::"
 
