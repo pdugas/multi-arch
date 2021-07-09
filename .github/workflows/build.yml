@@ -133,6 +133,5 @@ jobs:
           name: binaries ${{ matrix.os }} arm64
 
       - name: Build Container Image
-        run: make image-os OS=${{ matrix.os }} VERSION=${{ needs.builders.outputs.tag }} LATEST=${{ needs.builders.outputs.latest }} PUSH=${{ needs.builders.outputs.push }}
-
+        run: make image-os OS=${{ matrix.os }} BUILDER=${{ steps.buildx.outputs.name }} VERSION=${{ needs.builders.outputs.tag }} LATEST=${{ needs.builders.outputs.latest }} PUSH=${{ needs.builders.outputs.push }}
 

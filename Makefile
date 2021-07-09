@@ -66,7 +66,6 @@ build-os-arch: require-docker
 
 builder-os: IMAGE:=$(REGISTRY)/$(GITHUB_REPOSITORY)-builder:$(OS)
 builder-os: require-buildx-builder .docker/Dockerfile.$(OS)
-#	-docker pull $(IMAGE)
 	docker buildx build \
 		--builder $(BUILDER) \
 		--tag $(IMAGE) \
