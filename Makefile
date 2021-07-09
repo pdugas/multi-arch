@@ -56,7 +56,7 @@ build-os-arch: require-docker
 		{ echo >&2 "error: OS not set"; exit 1; }
 	@[ -n "$(ARCH)" ] || \
 		{ echo >&2 "error: ARCH not set"; exit 1; }
-	@$(MAKE) -s builder-$(OS); \
+	@$(MAKE) -s builder-os OS=$(OS); \
 	docker run --rm \
 		-v $(shell pwd):/opt/builder \
 		-u $(shell id -u):$(shell id -g) \
