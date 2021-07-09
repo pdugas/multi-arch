@@ -65,13 +65,13 @@ build-os-arch: require-docker
 		make all test
 
 builder-os: IMAGE:=$(REGISTRY)/$(GITHUB_REPOSITORY)-builder:$(OS)
-builder-os: CACHE:=$(REGISTRY)/$(GITHUB_REPOSITORY)-builder-cache:$(OS)
+builder-os: CACHE:=$(REGISTRY)/$(GITHUB_REPOSITORY)-builder:$(OS)-cache
 builder-os: require-buildx-builder .docker/Dockerfile.$(OS)
 	docker buildx build \
 		--builder $(BUILDER) \
 		--tag $(IMAGE) \
-		--cache-from type=registry,ref=$(CACHE) \
-		--cache-to type=registry,ref=$(CACHE),mode=max \
+		--cache-from type=registry,ref=$(IMAGE)-cache \
+		--cache-to type=registry,ref=$(IMAGE)-cache,mode=max \
 		--platform $(PLATFORM_LIST) \
 		--label "org.opencontainers.image.description=AppScope builder image for $(OS) ($(LIBC_$(OS)) libc)" \
 		--output type=$(if $(PUSH),registry,image) \
