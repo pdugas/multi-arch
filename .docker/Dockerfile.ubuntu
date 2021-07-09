@@ -4,7 +4,9 @@ FROM ${ARCH}ubuntu:18.04
 ENV DEBIAN_FRONTEND="noninteractive"
 ENV TZ="America/New_York"
 
-RUN apt update && apt install -y \
+RUN apt update \
+&& apt install -y apt-utils \
+&& apt install -y \
   file \
   gcc \
   git \

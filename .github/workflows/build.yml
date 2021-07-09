@@ -14,8 +14,11 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     env:
-        REGISTRY: ghcr.io
-        PLATFORMS: linux/amd64,linux/arm64
+      REGISTRY: ghcr.io
+    strategy:
+      matrix:
+        os: [ubuntu,alpine]
+        arch: [amd64,amd64]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -30,9 +33,11 @@ jobs:
           if [ "true" = "${{ steps.version.outputs.is-semver }}" ]; then
               TAG=${{ steps.version.outputs.version-without-v }}
               echo "::set-output name=latest::true"
+              echo "::set-output name=push::true"
           else
             if [ "refs/heads/main" = "${GITHUB_REF}" ]; then
               TAG=next
+              echo "::set-output name=push::true"
             else
               TAG=unreleased
             fi
@@ -43,6 +48,7 @@ jobs:
         uses: docker/setup-qemu-action@v1
 
       - name: Setup Docker Buildx
+        id: buildx
         uses: docker/setup-buildx-action@v1
 
       - name: Login to Container Registry
@@ -52,67 +58,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update Builder Images
-        run: |
-          TAG=${{env.REGISTRY}}/${{github.repository}}-builder
-
-          echo "::group::Building ${TAG}:ubuntu Image"
-          docker pull ${TAG}:ubuntu >/dev/null 2>&1 || true
-          docker buildx build \
-            --push \
-            --tag ${TAG}:ubuntu \
-            --cache-from ${TAG}:ubuntu \
-            --platform ${{env.PLATFORMS}} \
-            --output type=image \
-            --file .docker/Dockerfile.ubuntu \
-            .
-          echo "::endgroup::"
-
-          echo "::group::Building ${TAG}:alpine Image"
-          docker pull ${TAG}:alpine >/dev/null 2>&1 || true
-          docker buildx build \
-            --push \
-            --tag ${TAG}:alpine \
-            --cache-from ${TAG}:alpine \
-            --platform ${{env.PLATFORMS}} \
-            --output type=image \
-            --file .docker/Dockerfile.alpine \
-            .
-          echo "::endgroup::"
+      - name: Update Builder Image
+        run: make builder-os OS=${{ matrix.os }} BUILDER=${{ steps.buildx.output.name }} PUSH=${{ steps.tag.outputs.push }}
 
       - name: Build & Test
-        run: make VERSION=${{ steps.tag.outputs.tag }}
+        run: make build-os-arch OS=${{ matrix.os }} ARCH=${{ matrix.arch }}/ VERSION=${{ steps.tag.outputs.tag }}
 
       - name: Build Container Image
-        run: |
-          VERSION=${{ steps.tag.outputs.tag }}
-          if [ "unreleased" = "${VERSION}" ]; then
-            PUSH_OPT=
-          else 
-            PUSH_OPT=--push
-          fi
-          TAG=${{env.REGISTRY}}/${{github.repository}}
-          [ -z "${{ steps.tag.outputs.latest }}" ] || TAG_OPT="--tag ${TAG}:latest"
-          echo "::group::Building ${TAG}:${VERSION}-ubuntu Image"
-          docker buildx build \
-            --tag ${TAG}:${VERSION}-ubuntu \
-            ${PUSH_OPT} ${TAG_OPT} \
-            --platform ${{env.PLATFORMS}} \
-            --output type=image \
-            --build-arg IMAGE=ubuntu:latest \
-            --build-arg LIBC=gnu \
-            --file .docker/Dockerfile.publish \
-            .
-          echo "::endgroup::"
-          echo "::group::Building ${TAG}:${VERSION}-alpine Image"
-          docker buildx build \
-            --tag ${TAG}:${VERSION}-alpine \
-            ${PUSH_OPT} ${TAG_OPT} \
-            --platform ${{env.PLATFORMS}} \
-            --output type=image \
-            --build-arg IMAGE=alpine:latest \
-            --build-arg LIBC=musl \
-            --file .docker/Dockerfile.publish \
-            .
-          echo "::endgroup::"
+        run: make image-os OS=${{ matrix.os }} VERSION=${{ steps.tag.outputs.tag }} LATEST=${{ steps.tag.outputs.latest }} PUSH=${{ steps.tag.outputs.push }}
 

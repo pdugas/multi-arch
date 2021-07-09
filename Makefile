@@ -1,10 +1,11 @@
-REQS = git basename uname ldd
-CHECK_REQS := $(foreach REQ,$(REQS), $(if $(shell which $(REQ)),ignored,$(error "No $(REQ) in PATH")))
+REQS = git uname ldd
+CHECK_REQS := $(foreach REQ,$(REQS), $(if $(shell which $(REQ)),ignored,$(error "Missing $(REQ) in PATH")))
 
-REPO := $(shell git config --get remote.origin.url)
-PROJ := $(shell basename $(REPO) .git)
+REGISTRY ?= ghcr.io
+GITHUB_REPOSITORY ?= $(shell git config --get remote.origin.url | cut -d: -f2 | sed 's/\.git$$//')
 
 VERSION ?= $(shell git describe --always --dirty --tag | sed -e 's/^v//')
+
 CPPFLAGS += -DVERSION=\"$(VERSION)\"
 
 ARCH=$(shell uname -m | grep x86 >/dev/null && echo "amd64" || echo "arm64")
@@ -13,7 +14,16 @@ BINDIR=bin/$(ARCH)-linux-$(LIBC)
 
 EG=$(BINDIR)/eg
 
-default: build
+OS_LIST := ubuntu alpine
+ARCH_LIST := amd64 arm64
+PLATFORM_LIST := $(shell echo $(patsubst %,linux/%,$(ARCH_LIST)) | sed 's/ /,/g')
+
+LIBC_ubuntu := gnu
+LIBC_alpine := musl
+
+BUILDER ?= appscope-builder
+
+default: all
 
 help: ## this message
 	@echo Available Targets:
@@ -36,61 +46,73 @@ clean: ## remove built content
 test: ## run tests
 	@$(EG) | grep "Howdy" >/dev/null && echo "PASSED" || echo "FAILED"
 
-build: build-amd64-gnu build-arm64-gnu build-amd64-musl build-arm64-musl ## build for all architecures
+build: ## build each OS/ARCH combination
+	@for OS in $(OS_LIST); do for ARCH in $(ARCH_LIST); do \
+		$(MAKE) -s build-os-arch OS=$${OS} ARCH=$${ARCH}; \
+	done; done
 
-build-amd64-gnu: docker-required ## build for amd64/gnu
-	@$(MAKE) builder \
-		ARCH=amd64/ \
-		IMAGE=ghcr.io/pdugas/multi-arch/builder-amd64-gnu:latest \
-		DOCKERFILE=.docker/Dockerfile.ubuntu
-
-build-amd64-musl: docker-required ## build for amd64/musl
-	@$(MAKE) builder \
-		ARCH=amd64/ \
-		IMAGE=ghcr.io/pdugas/multi-arch/builder-amd64-musl:latest \
-		DOCKERFILE=.docker/Dockerfile.alpine
-
-build-arm64-gnu: docker-required ## build for arm64/gnu
-	@$(MAKE) builder \
-		ARCH=arm64v8/ \
-		IMAGE=ghcr.io/pdugas/multi-arch/builder-arm64-gnu:latest \
-		DOCKERFILE=.docker/Dockerfile.ubuntu
-
-build-arm64-musl: docker-required ## build for arm64/musl
-	@$(MAKE) builder \
-		ARCH=arm64v8/ \
-		IMAGE=ghcr.io/pdugas/multi-arch/builder-arm64-musl:latest \
-		DOCKERFILE=.docker/Dockerfile.alpine
-
-builder: qemu-binfmt
+build-os-arch: require-docker
+	@[ -n "$(OS)" ] || \
+		{ echo >&2 "error: OS not set"; exit 1; }
 	@[ -n "$(ARCH)" ] || \
 		{ echo >&2 "error: ARCH not set"; exit 1; }
-	@[ -n "$(IMAGE)" ] || \
-		{ echo >&2 "error: IMAGE not set"; exit 1; }
-	@[ -n "$(DOCKERFILE)" ] || \
-		{ echo >&2 "error: DOCKERFILE not set"; exit 1; }
-	-docker pull $(IMAGE)
-	docker build \
-		--tag $(IMAGE) \
-		--cache-from $(IMAGE) \
-		--label "org.opencontainers.image.description=Builder for $(dir $(ARCH)) and $(notdir $(DOCKERFILE))" \
-		--build-arg ARCH=$(ARCH) \
-		--file $(DOCKERFILE) \
-		.
+	@$(MAKE) -s builder-$(OS); \
 	docker run --rm \
 		-v $(shell pwd):/opt/builder \
 		-u $(shell id -u):$(shell id -g) \
-		$(IMAGE) make all test
-	if echo $(GITHUB_REF) | egrep '^refs/heads/main$$' >/dev/null; then \
-		docker push $(IMAGE); \
-	fi
+		--platform linux/$(ARCH) \
+		$(REGISTRY)/$(GITHUB_REPOSITORY)-builder:$(OS) \
+		make all test
 
-docker-required:
+builder-os: IMAGE:=$(REGISTRY)/$(GITHUB_REPOSITORY)-builder:$(OS)
+builder-os: require-buildx-builder .docker/Dockerfile.$(OS)
+	-docker pull $(IMAGE)
+	docker buildx build \
+		--builder $(BUILDER) \
+		--tag $(IMAGE) \
+		--cache-from $(IMAGE) \
+		--platform $(PLATFORM_LIST) \
+		--label "org.opencontainers.image.description=AppScope builder image for $(OS) ($(LIBC_$(OS)) libc)" \
+		--output type=image \
+		--file .docker/Dockerfile.$(OS) \
+		.
+
+image: ## build each OS image
+	@for OS in $(OS_LIST); do \
+		$(MAKE) -s image-os OS=$${OS}; \
+	done
+
+image-os: TAG:=$(REGISTRY)/$(GITHUB_REPOSITORY)
+image-os: .docker/Dockerfile.publish
+	@[ -n "$(OS)" ] || \
+		{ echo >&2 "error: OS not set"; exit 1; }
+	-docker pull $(TAG):latest-$(OS)
+	-docker pull $(TAG):$(VERSION)-$(OS)
+	docker buildx build \
+		$(PUSH) $(if $(LATEST),--tag $(TAG):latest-$(OS)) \
+		--tag $(TAG):$(VERSION)-$(OS) \
+		--cache-from $(TAG):latest-$(OS) \
+		--cache-from $(TAG):$(VERSION)-$(OS) \
+		--platform $(PLATFORM_LIST) \
+		--output type=image \
+		--build-arg IMAGE=$(OS):latest \
+		--build-arg LIBC=$(LIBC_$(OS)) \
+		--file .docker/Dockerfile.publish \
+		.
+
+require-buildx-builder: require-buildx require-qemu-binfmt
+	@docker buildx inspect $(BUILDER) >/dev/null 2>&1 || { docker buildx create --name $(BUILDER) --driver docker-container && docker buildx inspect --bootstrap --builder $(BUILDER); }
+
+require-docker:
 	@[ -n "$(shell which docker)" ] || \
 		{ echo >&2 "error: docker required"; exit 1; }
 
-qemu-binfmt:
+require-buildx: require-docker
+	@docker buildx version >/dev/null || \
+		{ echo >&1 "error: docker buildx required"; exit 1; }
+
+require-qemu-binfmt: require-docker
 	@[ -n "$(wildcard /proc/sys/fs/binfmt_misc/qemu-*)" ] || \
 		docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
-.PHONY: default help all clean test build* docker-required
+.PHONY: default help all clean test build* image* require*
