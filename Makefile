@@ -68,6 +68,7 @@ builder-os: IMAGE:=$(REGISTRY)/$(GITHUB_REPOSITORY)-builder:$(OS)
 builder-os: require-buildx-builder .docker/Dockerfile.$(OS)
 	-docker pull $(IMAGE)
 	docker buildx build \
+		$(if $(PUSH),--push) \
 		--builder $(BUILDER) \
 		--tag $(IMAGE) \
 		--cache-from $(IMAGE) \
@@ -89,7 +90,9 @@ image-os: .docker/Dockerfile.publish
 	-docker pull $(TAG):latest-$(OS)
 	-docker pull $(TAG):$(VERSION)-$(OS)
 	docker buildx build \
-		$(PUSH) $(if $(LATEST),--tag $(TAG):latest-$(OS)) \
+		$(if $(PUSH),--push) \
+		$(if $(LATEST),--tag $(TAG):latest-$(OS)) \
+		--builder $(BUILDER) \
 		--tag $(TAG):$(VERSION)-$(OS) \
 		--cache-from $(TAG):latest-$(OS) \
 		--cache-from $(TAG):$(VERSION)-$(OS) \
