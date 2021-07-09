@@ -73,9 +73,10 @@ builder-os: require-buildx-builder .docker/Dockerfile.$(OS)
 		--cache-to type=registry,ref=$(IMAGE),mode=max \
 		--platform $(PLATFORM_LIST) \
 		--label "org.opencontainers.image.description=AppScope builder image for $(OS) ($(LIBC_$(OS)) libc)" \
-		--output type=$(if $(PUSH),registry,image) \
+		--output type=image \
 		--file .docker/Dockerfile.$(OS) \
 		.
+	[ -z "$(PUSH)" ] || docker push $(IMAGE)
 
 image: ## build each OS image
 	@for OS in $(OS_LIST); do \
