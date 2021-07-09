@@ -75,6 +75,7 @@ builder-os: require-buildx-builder .docker/Dockerfile.$(OS)
 		--platform $(PLATFORM_LIST) \
 		--label "org.opencontainers.image.description=AppScope builder image for $(OS) ($(LIBC_$(OS)) libc)" \
 		--output type=$(if $(PUSH),registry,image) \
+		$(if $(PUSH),--push) \
 		--file .docker/Dockerfile.$(OS) \
 		.
 
