@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu,alpine]
-        arch: [amd64,amd64]
+        arch: [amd64,arm64]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -59,7 +59,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update Builder Image
-        run: make builder-os OS=${{ matrix.os }} BUILDER=${{ steps.buildx.output.name }} PUSH=${{ steps.tag.outputs.push }}
+        run: make builder-os OS=${{ matrix.os }} BUILDER=${{ steps.buildx.outputs.name }} PUSH=${{ steps.tag.outputs.push }}
 
       - name: Build & Test
         run: make build-os-arch OS=${{ matrix.os }} ARCH=${{ matrix.arch }}/ VERSION=${{ steps.tag.outputs.tag }}
