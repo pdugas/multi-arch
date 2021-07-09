@@ -51,11 +51,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build & Test
-        run: make VERSION=${{ steps.version.tag.tag }}
+        run: make VERSION=${{ steps.tag.outputs.tag }}
 
       - name: Build Container Image
         run: |
-          VERSION=${{ steps.version.tag.tag }}
+          VERSION=${{ steps.tag.outputs.tag }}
           if [ "unreleased" = "${VERSION}" ]; then
             PUSH_OPT=
           else 
