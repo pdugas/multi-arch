@@ -7,9 +7,6 @@ PROJ := $(shell basename $(REPO) .git)
 VERSION ?= $(shell git describe --always --dirty --tag | sed -e 's/^v//')
 CPPFLAGS += -DVERSION=\"$(VERSION)\"
 
-DOCKER_USER := pauldugas
-DOCKER_TAG:=$(DOCKER_USER)/$(PROJ):$(VERSION)
-
 ARCH=$(shell uname -m | grep x86 >/dev/null && echo "amd64" || echo "arm64")
 LIBC=$(shell ldd --version 2>&1 | grep musl >/dev/null && echo "musl" || echo "gnu")
 BINDIR=bin/$(ARCH)-linux-$(LIBC)

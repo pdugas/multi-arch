@@ -28,6 +28,7 @@ jobs:
         run: |
           if [ "true" = "${{ steps.version.outputs.is-semver }}" ]; then
               TAG=${{ steps.version.outputs.version-without-v }}
+              echo "::set-output name=latest::true"
           else
             if [ "refs/heads/main" = "${GITHUB_REF}" ]; then
               TAG=next
@@ -62,7 +63,8 @@ jobs:
             PUSH_OPT=--push
           fi
           TAG=${{env.REGISTRY}}/${{github.repository}}
-          [ -z "${LATEST}" ] || TAG_OPT="--tag ${TAG}:latest"
+          [ -z "${{ steps.tag.outputs.latest }}" ] || TAG_OPT="--tag ${TAG}:latest"
+          set -x
           docker buildx build \
             --tag ${TAG}:${{ steps.version.outputs.version-without-v }}-ubuntu \
             ${PUSH_OPT} ${TAG_OPT} \
