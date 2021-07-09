@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
         REGISTRY: ghcr.io
+        PLATFORMS: linux/amd64,linux/arm64
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -51,6 +52,34 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Update Builder Images
+        run: |
+          TAG=${{env.REGISTRY}}/${{github.repository}}-builder
+
+          echo "::group::Building ${TAG}:ubuntu Image"
+          docker pull ${TAG}:ubuntu || true
+          docker buildx build \
+            --push \
+            --tag ${TAG}:ubuntu \
+            --cache-from ${TAG}:ubuntu \
+            --platform ${{env.PLATFORMS}} \
+            --output type=image \
+            --file .docker/Dockerfile.ubuntu \
+            .
+          echo "::endgroup::"
+
+          echo "::group::Building ${TAG}:alpine Image"
+          docker pull ${TAG}:alpine || true
+          docker buildx build \
+            --push \
+            --tag ${TAG}:alpine \
+            --cache-from ${TAG}:alpine \
+            --platform ${{env.PLATFORMS}} \
+            --output type=image \
+            --file .docker/Dockerfile.alpine \
+            .
+          echo "::endgroup::"
+
       - name: Build & Test
         run: make VERSION=${{ steps.tag.outputs.tag }}
 
@@ -64,22 +93,22 @@ jobs:
           fi
           TAG=${{env.REGISTRY}}/${{github.repository}}
           [ -z "${{ steps.tag.outputs.latest }}" ] || TAG_OPT="--tag ${TAG}:latest"
-          echo "::group::Build ${TAG}:${VERSION}-ubuntu"
+          echo "::group::Building ${TAG}:${VERSION}-ubuntu Image"
           docker buildx build \
             --tag ${TAG}:${VERSION}-ubuntu \
             ${PUSH_OPT} ${TAG_OPT} \
-            --platform linux/amd64,linux/arm64 \
+            --platform ${{env.PLATFORMS}} \
             --output type=image \
             --build-arg IMAGE=ubuntu:latest \
             --build-arg LIBC=gnu \
             --file .docker/Dockerfile.publish \
             .
           echo "::endgroup::"
-          echo "::group::Build ${TAG}:${VERSION}-alpine"
+          echo "::group::Building ${TAG}:${VERSION}-alpine Image"
           docker buildx build \
             --tag ${TAG}:${VERSION}-alpine \
             ${PUSH_OPT} ${TAG_OPT} \
-            --platform linux/amd64,linux/arm64 \
+            --platform ${{env.PLATFORMS}} \
             --output type=image \
             --build-arg IMAGE=alpine:latest \
             --build-arg LIBC=musl \
