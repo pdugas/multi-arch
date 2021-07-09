@@ -87,7 +87,7 @@ jobs:
         uses: docker/setup-buildx-action@v1
 
       - name: Build & Test
-        run: make build-os-arch OS=${{ matrix.os }} ARCH=${{ matrix.arch }}/ VERSION=${{ needs.builders.outputs.tag }}
+        run: make build-os-arch OS=${{ matrix.os }} ARCH=${{ matrix.arch }} VERSION=${{ needs.builders.outputs.tag }}
 
       - name: Upload Binaries
         uses: actions/upload-artifact@v2

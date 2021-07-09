@@ -87,14 +87,10 @@ image-os: TAG:=$(REGISTRY)/$(GITHUB_REPOSITORY)
 image-os: .docker/Dockerfile.publish
 	@[ -n "$(OS)" ] || \
 		{ echo >&2 "error: OS not set"; exit 1; }
-	-docker pull $(TAG):latest-$(OS)
-	-docker pull $(TAG):$(VERSION)-$(OS)
 	docker buildx build \
 		$(if $(LATEST),--tag $(TAG):latest-$(OS)) \
 		--builder $(BUILDER) \
 		--tag $(TAG):$(VERSION)-$(OS) \
-		--cache-from $(TAG):latest-$(OS) \
-		--cache-from $(TAG):$(VERSION)-$(OS) \
 		--platform $(PLATFORM_LIST) \
 		--output type=$(if $(PUSH),registry,image) \
 		--build-arg IMAGE=$(OS):latest \
