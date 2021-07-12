@@ -122,15 +122,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - run: ls -R
+
       - name: Download amd64 Binaries
         uses: actions/download-artifact@v2
         with:
           name: binaries ${{ matrix.os }} amd64
 
+      - run: ls -R
+
       - name: Download arm64 Binaries
         uses: actions/download-artifact@v2
         with:
           name: binaries ${{ matrix.os }} arm64
+
+      - run: ls -R
 
       - name: Build Container Image
         run: make image-os OS=${{ matrix.os }} BUILDER=${{ steps.buildx.outputs.name }} VERSION=${{ needs.builders.outputs.tag }} LATEST=${{ needs.builders.outputs.latest }} PUSH=${{ needs.builders.outputs.push }}
