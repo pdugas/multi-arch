@@ -31,8 +31,10 @@ jobs:
         run: |
           if [ "true" = "${{ steps.version.outputs.is-semver }}" ]; then
               TAG=${{ steps.version.outputs.version-without-v }}
-              echo "::set-output name=latest::true"
               echo "::set-output name=push::true"
+              if [ -z "${{ steps.version.outputs.prerelease }}" ]; then
+                echo "::set-output name=latest::true"
+              fi
           else
             if [ "refs/heads/main" = "${GITHUB_REF}" ]; then
               TAG=next
