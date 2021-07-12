@@ -51,10 +51,10 @@ jobs:
         if: ${{ steps.version.outputs.is-semver == 'true' }}
         run: |
             if [ -n "${{ steps.version.outputs.prerelease }}" ]; then
-              gh release create ${{ steps.get_version.outputs.version }} -p \
+              gh release create ${{ steps.version.outputs.version }} -p \
                 -t "Pre-Release ${{ steps.version.outputs.version-without-v }}"
             else
-              gh release create ${{ steps.get_version.outputs.version }} \
+              gh release create ${{ steps.version.outputs.version }} \
                 -t "Release ${{ steps.version.outputs.version-without-v }}"
             fi
 
@@ -106,7 +106,7 @@ jobs:
         id: release
         if: ${{ steps.version.outputs.is-semver == 'true' }}
         run: |
-            gh release upload ${{ steps.get_version.outputs.version }} 
+            gh release upload ${{ steps.version.outputs.version }} 
 
       - name: Upload Binaries
         uses: actions/upload-artifact@v2
