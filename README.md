@@ -59,7 +59,7 @@ We're _caching_ our builder images to speed up builds. There are 4 of them curre
 * ~~Build x86 & ARM binaries~~
 * ~~Speed up the builds by caching the builder images here at GitHub.~~
 * ~~Build multi-arch container image~~
+* ~~Split out the build into separate jobs instead of serially in one. Can we use the `buildx --platform`?~~
 * Attach `eg-$(ARCH)-$(LIBC)` binaries to the release as assets.
-* Split out the build into separate jobs instead of serially in one. Can we use the `buildx --platform`? 
 * Add a `install-eg.sh` script that can be run via `curl -Ls https://.../install-eg.sh | sh` to install the correct version of the program into `/usr/local/bin`.
 * Autotools

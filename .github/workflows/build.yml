@@ -45,6 +45,12 @@ jobs:
           fi
           echo "::set-output name=tag::${TAG}"
 
+      - name: Create Release
+        id: release
+        if: ${{ steps.version.outputs.is-semver == 'true' }}
+        run: |
+            gh release list 
+
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v1
 
