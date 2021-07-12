@@ -1,3 +1,5 @@
+[![Build](https://github.com/pdugas/multi-arch/actions/workflows/build.yml/badge.svg)](https://github.com/pdugas/multi-arch/actions/workflows/build.yml)
+
 # Multi-Arch Builds
 
 This is a test/demo project where I'm working out how to build and package a binary executable for multiple architectures. Here's how it works:
