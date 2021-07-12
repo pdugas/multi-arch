@@ -16,7 +16,7 @@ defaults:
 
 jobs:
   info:
-    name: Info
+    name: Get Build Info
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -125,7 +125,7 @@ jobs:
 
   image:
     name: Build Image
-    needs: [builders,build]
+    needs: [info,builders,build]
     runs-on: ubuntu-latest
     strategy:
       matrix:
