@@ -116,7 +116,11 @@ jobs:
         id: release
         if: ${{ needs.info.outputs.is-semver == 'true' }}
         run: |
-            gh release upload ${{ needs.info.outputs.version }} "bin/eg-*"
+            if [ "ubuntu" == "${{ matrix.os }}" ]; then
+              gh release upload ${{ needs.info.outputs.version }} "bin/eg-${{ matrix.arch }}-gnu"
+            else
+              gh release upload ${{ needs.info.outputs.version }} "bin/eg-${{ matrix.arch }}-musl"
+            fi
 
       - name: Upload Binaries
         uses: actions/upload-artifact@v2
