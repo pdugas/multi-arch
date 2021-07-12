@@ -116,7 +116,7 @@ jobs:
         id: release
         if: ${{ needs.info.outputs.is-semver == 'true' }}
         run: |
-            gh release upload ${{ needs.info.outputs.version }} 
+            gh release upload ${{ needs.info.outputs.version }} "bin/eg-*"
 
       - name: Upload Binaries
         uses: actions/upload-artifact@v2
