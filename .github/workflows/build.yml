@@ -57,6 +57,7 @@ jobs:
 
     outputs:
         version: ${{ steps.version.outputs.version }}
+        is-semver: ${{ steps.version.outputs.is-semver }}
         tag: ${{ steps.tag.outputs.tag }}
         latest: ${{ steps.tag.outputs.latest }}
         push: ${{ steps.tag.outputs.push }}
@@ -113,7 +114,7 @@ jobs:
 
       - name: Add Asset to Release
         id: release
-        if: ${{ steps.version.outputs.is-semver == 'true' }}
+        if: ${{ needs.info.outputs.is-semver == 'true' }}
         run: |
             gh release upload ${{ needs.info.outputs.version }} 
 
