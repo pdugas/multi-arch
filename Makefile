@@ -10,9 +10,8 @@ CPPFLAGS += -DVERSION=\"$(VERSION)\"
 
 ARCH=$(shell uname -m | grep x86 >/dev/null && echo "amd64" || echo "arm64")
 LIBC=$(shell ldd --version 2>&1 | grep musl >/dev/null && echo "musl" || echo "gnu")
-BINDIR=bin/$(ARCH)-linux-$(LIBC)
 
-EG=$(BINDIR)/eg
+EG=bin/eg-$(ARCH)-$(LIBC)
 
 OS_LIST := ubuntu alpine
 ARCH_LIST := amd64 arm64
@@ -36,12 +35,11 @@ help: ## this message
 
 all: $(EG) ## build for the local environment
 
-$(BINDIR)/%: %.c Makefile
-	@mkdir -p $(BINDIR)
+$(EG): eg.c Makefile
 	$(LINK.c) $< $(LOADLIBES) $(LDLIBS) -o $@
 
 clean: ## remove built content
-	@$(RM) -r bin/*
+	@$(RM) $(EG)
 
 test: ## run tests
 	@$(EG) | grep "Howdy" >/dev/null && echo "PASSED" || echo "FAILED"
@@ -56,7 +54,6 @@ build-os-arch: require-docker
 		{ echo >&2 "error: OS not set"; exit 1; }
 	@[ -n "$(ARCH)" ] || \
 		{ echo >&2 "error: ARCH not set"; exit 1; }
-#	@$(MAKE) -s builder-os OS=$(OS) PUSH=
 	docker run --rm \
 		-v $(shell pwd):/opt/builder \
 		-u $(shell id -u):$(shell id -g) \

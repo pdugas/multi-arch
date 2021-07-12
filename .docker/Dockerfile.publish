@@ -3,5 +3,5 @@ FROM ${IMAGE}
 
 ARG TARGETARCH
 ARG LIBC
-COPY bin/${TARGETARCH}-linux-${LIBC}/eg /usr/local/bin/eg
+COPY bin/eg-${TARGETARCH}-${LIBC} /usr/local/bin/eg
 RUN chmod 0755 /usr/local/bin/eg

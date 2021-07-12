@@ -49,7 +49,14 @@ jobs:
         id: release
         if: ${{ steps.version.outputs.is-semver == 'true' }}
         run: |
-            gh release list 
+            gh auth login 
+            if [ -n "${{ steps.version.outputs.prerelease }}" ]; then
+              gh release create ${{ steps.get_version.outputs.version }} -p \
+                -t "Pre-Release ${{ steps.version.outputs.version-without-v }}"
+            else
+              gh release create ${{ steps.get_version.outputs.version }} \
+                -t "Release ${{ steps.version.outputs.version-without-v }}"
+            fi
 
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v1
@@ -95,13 +102,18 @@ jobs:
       - name: Build & Test
         run: make build-os-arch OS=${{ matrix.os }} ARCH=${{ matrix.arch }} VERSION=${{ needs.builders.outputs.tag }}
 
+      - name: Add Asset to Release
+        id: release
+        if: ${{ steps.version.outputs.is-semver == 'true' }}
+        run: |
+            gh auth login 
+            gh release upload ${{ steps.get_version.outputs.version }} 
+
       - name: Upload Binaries
         uses: actions/upload-artifact@v2
         with:
           name: binaries ${{ matrix.os }} ${{ matrix.arch }}
-          path: |
-              bin/
-              !bin/.gitignore
+          path: bin/eg-*
 
   image:
     name: Build Image
