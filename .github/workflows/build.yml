@@ -31,10 +31,6 @@ jobs:
         id: version
         uses: battila7/get-version-action@v2
 
-      - name: Extract release notes
-        id: notes
-        uses: ffurrer2/extract-release-notes@v1
-
       - name: Get Tag
         id: tag
         run: |
@@ -53,6 +49,11 @@ jobs:
             fi
           fi
           echo "::set-output name=tag::${TAG}"
+
+      - name: Extract Release Notes
+        if: ${{ steps.version.outputs.is-semver == 'true' }}
+        id: notes
+        uses: ffurrer2/extract-release-notes@v1
 
       - name: Create Release
         id: release
