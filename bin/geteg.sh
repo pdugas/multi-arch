@@ -3,7 +3,7 @@
 # geteg.sh - web installer for eg
 #
 # Synopsis:
-#    curl -Ls https://raw.githubusercontent.com/pdugas/multi-arch/main/geteg.sh | sh
+#    curl -Ls https://raw.githubusercontent.com/pdugas/multi-arch/main/bin/geteg.sh | sh
 # 
 # Description:
 #    `geteg.sh` is an example installer script for the `eg` binary onto a local
@@ -31,16 +31,24 @@ case $MACH in
 esac
 
 [ -n "$(which ldd)" ] || { echo >&2 "error: missing ldd in PATH"; exit 1; }
-if ldd --version 2>&1 | grep musl >/dev/null; then
+LDD=$(ldd --version 2>&1)
+if echo $LDD | grep musl >/dev/null; then
     LIBC=musl
 else
     LIBC=gnu
 fi
 
-LATEST=$(curl -s https://api.github.com/repos/pdugas/multi-arch/releases/latest)
+[ -n "$(which curl)" ] || { echo >&2 "error: missing curl in PATH"; exit 1; }
+RELEASES=https://api.github.com/repos/pdugas/multi-arch/releases
+LATEST=$(curl -s ${RELEASES}/latest)
 TAG=$(echo ${LATEST} | sed 's/^.*"tag_name": "\([^"]*\)".*/\1/')
+DOWNLOAD=https://github.com/pdugas/multi-arch/releases/download
+if [ -w /usr/local/bin ]; then
+    DEST=/usr/local/bin/eg
+else
+    DEST=/tmp/eg
+fi
+curl -Lso $DEST ${DOWNLOAD}/${TAG}/eg-${ARCH}-${LIBC} && chmod a+x $DEST
 
-# - download it
-# - move and chmod it
-# - report results
+echo "Installed eg-${ARCH}-${LIBC} to $DEST"
 

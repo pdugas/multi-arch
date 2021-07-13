@@ -8,6 +8,7 @@ All notable changes to the [Multi-Arch] project are documented here.
 
 - Add CHANGELOG.md.
 - Add info from CHANGELOG.md to release notes.
+- The `bin/geteg.sh` installer works now.
 
 ## [0.0.0] - 2021-07-13
 
