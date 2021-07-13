@@ -36,7 +36,7 @@ help: ## this message
 all: $(EG) ## build for the local environment
 
 $(EG): eg.c Makefile
-	$(LINK.c) $< $(LOADLIBES) $(LDLIBS) -o $@
+	$(LINK.c) $< $(LDLIBS) -o $@
 
 clean: ## remove built content
 	@$(RM) $(EG)
@@ -49,7 +49,7 @@ build: ## build each OS/ARCH combination
 		$(MAKE) -s build-os-arch OS=$${OS} ARCH=$${ARCH}; \
 	done; done
 
-build-os-arch: require-docker
+build-os-arch: require-docker require-qemu-binfmt
 	@[ -n "$(OS)" ] || \
 		{ echo >&2 "error: OS not set"; exit 1; }
 	@[ -n "$(ARCH)" ] || \

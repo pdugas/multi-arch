@@ -15,6 +15,11 @@ defaults:
     shell: bash
 
 jobs:
+
+  # ---
+  # The initial `info` stage is where we're getting version details and doing
+  # things we only want to happen once in non-matrixed jobs.
+  # ---
   info:
     name: Get Build Info
     runs-on: ubuntu-latest
@@ -45,6 +50,7 @@ jobs:
           fi
           echo "::set-output name=tag::${TAG}"
 
+      # TODO: Attach release notes to the release
       - name: Create Release
         id: release
         if: ${{ steps.version.outputs.is-semver == 'true' }}
@@ -64,6 +70,9 @@ jobs:
         latest: ${{ steps.tag.outputs.latest }}
         push: ${{ steps.tag.outputs.push }}
 
+  # --
+  # Build the "builder" images, one for each OS
+  # --
   builders:
     name: Update Builder
     needs: info
@@ -92,6 +101,9 @@ jobs:
       - name: Update Builder Image
         run: make builder-os OS=${{ matrix.os }} BUILDER=${{ steps.buildx.outputs.name }} PUSH=${{ needs.info.outputs.push }}
 
+  # --
+  # Build the code and run the tests for each OS/ARCH pair
+  # --
   build:
     name: Build & Test
     needs: [info,builders]
@@ -130,6 +142,9 @@ jobs:
           name: binaries ${{ matrix.os }} ${{ matrix.arch }}
           path: bin/eg-*
 
+  # --
+  # Build the images, one for each OS
+  # --
   image:
     name: Build Image
     needs: [info,builders,build]
