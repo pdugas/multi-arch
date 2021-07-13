@@ -31,6 +31,10 @@ jobs:
         id: version
         uses: battila7/get-version-action@v2
 
+      - name: Extract release notes
+        id: notes
+        uses: ffurrer2/extract-release-notes@v1
+
       - name: Get Tag
         id: tag
         run: |
@@ -50,16 +54,17 @@ jobs:
           fi
           echo "::set-output name=tag::${TAG}"
 
-      # TODO: Attach release notes to the release
       - name: Create Release
         id: release
         if: ${{ steps.version.outputs.is-semver == 'true' }}
         run: |
             if [ -n "${{ steps.version.outputs.prerelease }}" ]; then
               gh release create ${{ steps.version.outputs.version }} -p \
+                -n "${{ steps.notes.outputs.release_notes }}" \
                 -t "Pre-Release ${{ steps.version.outputs.version-without-v }}"
             else
               gh release create ${{ steps.version.outputs.version }} \
+                -n "${{ steps.notes.outputs.release_notes }}" \
                 -t "Release ${{ steps.version.outputs.version-without-v }}"
             fi
 

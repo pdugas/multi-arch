@@ -6,7 +6,8 @@ All notable changes to the [Multi-Arch] project are documented here.
 <!-- Added, Changed, Deprecated, Removed, Fixed, Security sections here -->
 ### Added
 
-- CHANGELOG.md
+- Add CHANGELOG.md.
+- Add info from CHANGELOG.md to release notes.
 
 ## [0.0.0] - 2021-07-13
 
