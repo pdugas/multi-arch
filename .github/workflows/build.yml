@@ -85,7 +85,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [[ubuntu],[alpine]]
+        os: [[ubuntu],[self-hosted,alpine]]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
