@@ -82,10 +82,10 @@ jobs:
   builders:
     name: Update Builder
     needs: info
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [[ubuntu],[self-hosted,alpine]]
+        os: [ubuntu,alpine]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
