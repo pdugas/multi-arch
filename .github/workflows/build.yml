@@ -22,7 +22,7 @@ jobs:
   # ---
   info:
     name: Get Build Info
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -82,7 +82,7 @@ jobs:
   builders:
     name: Update Builder
     needs: info
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     strategy:
       matrix:
         os: [ubuntu,alpine]
@@ -113,7 +113,7 @@ jobs:
   build:
     name: Build & Test
     needs: [info,builders]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     strategy:
       matrix:
         os: [ubuntu,alpine]
@@ -154,7 +154,7 @@ jobs:
   image:
     name: Build Image
     needs: [info,builders,build]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     strategy:
       matrix:
         os: [ubuntu,alpine]
@@ -190,5 +190,3 @@ jobs:
 
       - name: Build Container Image
         run: make image-os OS=${{ matrix.os }} BUILDER=${{ steps.buildx.outputs.name }} VERSION=${{ needs.info.outputs.tag }} LATEST=${{ needs.info.outputs.latest }} PUSH=${{ needs.info.outputs.push }}
-
-
