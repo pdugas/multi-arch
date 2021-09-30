@@ -59,3 +59,4 @@ We're _caching_ our builder images to speed up builds. There are 4 of them curre
 * ~~Attach `eg-$(ARCH)-$(LIBC)` binaries to the release as assets.~~
 * Add a `install-eg.sh` script that can be run via `curl -Ls https://.../install-eg.sh | sh` to install the correct version of the program into `/usr/local/bin`.
 * Autotools?
+
