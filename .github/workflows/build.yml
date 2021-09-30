@@ -22,7 +22,7 @@ jobs:
   # ---
   info:
     name: Get Build Info
-    runs-on: self-hosted
+    runs-on: [self-hosted,ARM64]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -82,7 +82,7 @@ jobs:
   builders:
     name: Update Builder
     needs: info
-    runs-on: self-hosted
+    runs-on: [self-hosted,ARM64]
     strategy:
       matrix:
         os: [ubuntu,alpine]
@@ -113,7 +113,7 @@ jobs:
   build:
     name: Build & Test
     needs: [info,builders]
-    runs-on: self-hosted
+    runs-on: [self-hosted,ARM64]
     strategy:
       matrix:
         os: [ubuntu,alpine]
@@ -154,7 +154,7 @@ jobs:
   image:
     name: Build Image
     needs: [info,builders,build]
-    runs-on: self-hosted
+    runs-on: [self-hosted,ARM64]
     strategy:
       matrix:
         os: [ubuntu,alpine]
