@@ -177,13 +177,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Download amd64 Binaries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: binaries ${{ matrix.os }} amd64
           path: bin
 
       - name: Download arm64 Binaries
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: binaries ${{ matrix.os }} arm64
           path: bin
